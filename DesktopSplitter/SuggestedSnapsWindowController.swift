@@ -8,17 +8,8 @@
 
 import Cocoa
 
-class SuggestedSnapsWindowController: NSWindowController, SuggestedSnapsViewControllerDelegate {
+class SuggestedSnapsWindowController: NSWindowController {
     private var suggestedSnapsViewController: SuggestedSnapsViewController?
-    
-    override func windowDidLoad() {
-        super.windowDidLoad()
-        
-        window?.isOpaque = false
-        window?.backgroundColor = NSColor(calibratedWhite: 0.0, alpha: 0.7)
-        
-        suggestedSnapsViewController = contentViewController as? SuggestedSnapsViewController
-    }
     
     func set(suggestedSnapDirection: SnapHelper.SnapDirection) {
         if suggestedSnapDirection != .FullScreen, let screen = NSScreen.main?.visibleFrame, let window = window {
@@ -41,5 +32,18 @@ class SuggestedSnapsWindowController: NSWindowController, SuggestedSnapsViewCont
     
     func viewControllerDidSnapWindow() {
         NSApplication.shared.stopModal()
+    }
+}
+
+extension SuggestedSnapsWindowController: SuggestedSnapsViewControllerDelegate {
+    override func windowDidLoad() {
+        super.windowDidLoad()
+        
+        window?.isOpaque = false
+        window?.backgroundColor = NSColor(calibratedWhite: 0.0, alpha: 0.7)
+        
+        suggestedSnapsViewController = contentViewController as? SuggestedSnapsViewController
+        
+        NSApplication.shared.activate(ignoringOtherApps: true)
     }
 }

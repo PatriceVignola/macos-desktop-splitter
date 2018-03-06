@@ -57,13 +57,16 @@
         <scene sceneID="9EY-V2-i9F">
             <objects>
                 <viewController storyboardIdentifier="SuggestedSnapsViewController" id="rDg-2n-QqS" userLabel="SuggestedSnapsViewController" customClass="SuggestedSnapsViewController" customModule="DesktopSplitter" customModuleProvider="target" sceneMemberID="viewController">
-                    <collectionView key="view" autoresizesSubviews="NO" allowsEmptySelection="NO" id="QKq-K7-T7n" userLabel="SuggestedSnapsView" customClass="SuggestedSnapsView" customModule="DesktopSplitter" customModuleProvider="target">
+                    <collectionView key="view" autoresizesSubviews="NO" selectable="YES" allowsEmptySelection="NO" id="QKq-K7-T7n" userLabel="SuggestedSnapsView" customClass="SuggestedSnapsView" customModule="DesktopSplitter" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                         <collectionViewFlowLayout key="collectionViewLayout" id="hqq-dn-LiY">
                             <size key="itemSize" width="50" height="50"/>
                         </collectionViewFlowLayout>
                         <color key="primaryBackgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                        <connections>
+                            <outlet property="flowLayout" destination="hqq-dn-LiY" id="KAc-Yg-4YA"/>
+                        </connections>
                     </collectionView>
                     <connections>
                         <outlet property="suggestedSnapsView" destination="QKq-K7-T7n" id="mt2-s7-3C8"/>

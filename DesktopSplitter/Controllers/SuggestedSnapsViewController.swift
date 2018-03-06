@@ -12,7 +12,7 @@ protocol SuggestedSnapsViewControllerDelegate: AnyObject {
     func viewControllerDidSnapWindow()
 }
 
-class SuggestedSnapsViewController: NSViewController, SuggestedSnapItemDelegate {
+class SuggestedSnapsViewController: NSViewController {
     @IBOutlet weak private var suggestedSnapsView: SuggestedSnapsView!
     
     var delegate: SuggestedSnapsViewControllerDelegate?
@@ -29,15 +29,7 @@ class SuggestedSnapsViewController: NSViewController, SuggestedSnapItemDelegate 
         super.viewDidAppear()
         
         suggestedSnapsView?.numItemsDidChange(numItems: model.numSuggestedSnaps)
-    }
-    
-    func userDidSelect(suggestedSnap: DesktopWindow) {
-        // TODO: Add support for multiple screens
-        let snapRect = SnapHelper.getSnapRect(for: model.suggestedSnapDirection)
-        suggestedSnap.set(frame: snapRect)
-        suggestedSnap.bringToFront()
-        
-        delegate?.viewControllerDidSnapWindow()
+        suggestedSnapsView?.delegate = self
     }
     
     func set(suggestedSnapDirection: SnapHelper.SnapDirection) {
@@ -61,11 +53,36 @@ extension SuggestedSnapsViewController: NSCollectionViewDataSource {
         
         // indexPath[0] is the section index, so indexPath[1] is the item index
         item.suggestedSnap = model.getSuggestedSnap(atIndex: indexPath[1])
-        item.delegate = self
         
         return item
     }
 }
+
+extension SuggestedSnapsViewController: NSCollectionViewDelegate {
+    func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
+        guard let indexPath = indexPaths.first else { return }
+        
+        // indexPath[0] is the section index, so indexPath[1] is the item index
+        let suggestedSnap = model.getSuggestedSnap(atIndex: indexPath[1])
+        
+        // TODO: Add support for multiple screens
+        let snapRect = SnapHelper.getSnapRect(for: model.suggestedSnapDirection)
+        suggestedSnap.set(frame: snapRect)
+        suggestedSnap.bringToFront()
+        
+        delegate?.viewControllerDidSnapWindow()
+    }
+}
+
+/*
+extension SuggestedSnapsViewController: NSCollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: NSCollectionView, layout collectionViewLayout: NSCollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> NSSize {
+        // TODO: Try to find the optimal size for every single window by packing them optimally in a giant rectangle
+        // with the dimensions of the screen, and then scaling them down to fit the screen size
+        //https://stackoverflow.com/questions/1213394/what-algorithm-can-be-used-for-packing-rectangles-of-different-sizes-into-the-sm
+    }
+}*/
 
 extension NSUserInterfaceItemIdentifier {
     static let suggestedSnapItem = NSUserInterfaceItemIdentifier("SuggestedSnapItem")

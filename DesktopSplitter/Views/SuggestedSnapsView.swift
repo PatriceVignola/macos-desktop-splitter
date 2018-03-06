@@ -8,28 +8,17 @@
 
 import Cocoa
 
-protocol SuggestedSnapsViewDelegate: AnyObject {
-    func didRequestClose()
-    func didSelect(suggestedSnap: DesktopWindow)
-}
-
 class SuggestedSnapsView: NSCollectionView {
-    var suggestedSnapsViewDelegate: SuggestedSnapsViewDelegate?
+    @IBOutlet weak private var flowLayout: NSCollectionViewFlowLayout?
     
-    private lazy var flowLayout = NSCollectionViewFlowLayout()
+    private var trackingArea: NSTrackingArea?
     
-    func didSelect(suggestedSnap: DesktopWindow) {
-        suggestedSnapsViewDelegate?.didSelect(suggestedSnap: suggestedSnap)
-    }
-    
-    required init?(coder decoder: NSCoder) {
-        super.init(coder: decoder)
+    override func awakeFromNib() {
+        guard let flowLayout = flowLayout else { return }
         
         flowLayout.sectionInset = NSEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
         flowLayout.minimumInteritemSpacing = 30
         flowLayout.minimumLineSpacing = 30
-        
-        collectionViewLayout = flowLayout
     }
     
     override func keyDown(with event: NSEvent) {
@@ -37,7 +26,14 @@ class SuggestedSnapsView: NSCollectionView {
         NSLog("KeyDown fired in SuggestedSnapsView")
     }
     
+    override func mouseEntered(with event: NSEvent) {
+        super.mouseEntered(with: event)
+        NSLog("Mouse Entered in Collection")
+    }
+    
     func numItemsDidChange(numItems: Int) {
+        guard let flowLayout = flowLayout else { return }
+        
         var maxContentWidth = frame.width
         maxContentWidth -= flowLayout.sectionInset.left + flowLayout.sectionInset.right
         maxContentWidth += flowLayout.minimumInteritemSpacing
@@ -51,11 +47,10 @@ class SuggestedSnapsView: NSCollectionView {
         itemSize.height -= flowLayout.minimumLineSpacing
         
         flowLayout.itemSize = itemSize
-        
     }
     
+    // TODO: Delete once the optimal size for every item has been calculated in the controller
     private func getItemSize(forNumItems numItems: Int, forWidth width: CGFloat, forHeight height: CGFloat) -> NSSize {
-        // TODO: Refactor
         let n = Double(numItems)
         let x = Double(width)
         let y = Double(height)
