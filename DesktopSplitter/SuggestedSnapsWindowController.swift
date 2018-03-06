@@ -36,7 +36,6 @@ class SuggestedSnapsWindowController: NSWindowController, SuggestedSnapsViewCont
             window.close()
         }
         
-        // TODO: Uncomment after test
         dismissController(self)
     }
     

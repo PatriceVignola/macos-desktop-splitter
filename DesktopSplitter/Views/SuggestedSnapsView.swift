@@ -22,16 +22,14 @@ class SuggestedSnapsView: NSCollectionView {
         suggestedSnapsViewDelegate?.didSelect(suggestedSnap: suggestedSnap)
     }
     
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
+    required init?(coder decoder: NSCoder) {
+        super.init(coder: decoder)
         
         flowLayout.sectionInset = NSEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
         flowLayout.minimumInteritemSpacing = 30
         flowLayout.minimumLineSpacing = 30
-    }
-    
-    required init?(coder decoder: NSCoder) {
-        super.init(coder: decoder)
+        
+        collectionViewLayout = flowLayout
     }
     
     override func keyDown(with event: NSEvent) {
@@ -53,7 +51,7 @@ class SuggestedSnapsView: NSCollectionView {
         itemSize.height -= flowLayout.minimumLineSpacing
         
         flowLayout.itemSize = itemSize
-        collectionViewLayout = flowLayout
+        
     }
     
     private func getItemSize(forNumItems numItems: Int, forWidth width: CGFloat, forHeight height: CGFloat) -> NSSize {

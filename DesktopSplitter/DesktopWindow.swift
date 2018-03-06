@@ -45,7 +45,6 @@ class DesktopWindow {
     }
     
     func bringToFront() {
-        // TODO: Make sure that it works as intended
         AXUIElementSetAttributeValue(axWindow, kAXMainAttribute as CFString, kCFBooleanTrue)
     }
     
@@ -100,7 +99,7 @@ class DesktopWindow {
                 let cgScreenshotOptional = CGWindowListCreateImage(bounds, windowOptions, windowId, resolution)
                 
                 guard let cgScreenshot = cgScreenshotOptional else { continue }
-                guard let title = cgWindow[kCGWindowName as String] as? String else { continue }
+                guard let title = cgWindow[kCGWindowName as String] as? String, title != "" else { continue }
                 guard let icon = app.icon else { continue }
                 
                 let screenshotSize = NSSize(width: cgScreenshot.width, height: cgScreenshot.height)
