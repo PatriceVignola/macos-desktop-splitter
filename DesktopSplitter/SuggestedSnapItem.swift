@@ -8,18 +8,18 @@
 
 import Cocoa
 
-protocol SuggestedSnapDelegate: AnyObject {
-    func didSelect(suggestedSnap: SuggestedSnap)
+protocol SuggestedSnapItemDelegate: AnyObject {
+    func userDidSelect(suggestedSnap: DesktopWindow)
 }
 
 class SuggestedSnapItem: NSCollectionViewItem {
-    var delegates: [SuggestedSnapDelegate] = []
+    var delegate: SuggestedSnapItemDelegate?
     
-    var suggestedSnap: SuggestedSnap? {
+    var suggestedSnap: DesktopWindow? {
         didSet {
             guard isViewLoaded else { return }
             
-            imageView?.image = suggestedSnap?.previewImage
+            imageView?.image = suggestedSnap?.screenshot
         }
     }
     
@@ -34,9 +34,7 @@ class SuggestedSnapItem: NSCollectionViewItem {
         NSLog("Mouse Down")
         
         if suggestedSnap != nil {
-            for delegate in delegates {
-                delegate.didSelect(suggestedSnap: suggestedSnap!)
-            }
+            delegate?.userDidSelect(suggestedSnap: suggestedSnap!)
         }
     }
 }

@@ -14,10 +14,11 @@
 		762152812049960E00D7F974 /* SuggestedSnapsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 762152802049960E00D7F974 /* SuggestedSnapsWindowController.swift */; };
 		763F19D820442C6000FCA125 /* Windows.png in Resources */ = {isa = PBXBuildFile; fileRef = 763F19D720442C6000FCA125 /* Windows.png */; };
 		7641DB94204926E300BD9971 /* SuggestedSnapsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7641DB93204926E300BD9971 /* SuggestedSnapsModel.swift */; };
+		764D2AB0204BBD7A0005B7C1 /* DesktopWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764D2AAF204BBD7A0005B7C1 /* DesktopWindow.swift */; };
+		764D2AB2204BE5550005B7C1 /* SnapHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764D2AB1204BE5550005B7C1 /* SnapHelper.swift */; };
 		76539F3A2043FB940016D1AE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76539F392043FB940016D1AE /* AppDelegate.swift */; };
 		76539F3E2043FB940016D1AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 76539F3D2043FB940016D1AE /* Assets.xcassets */; };
 		76539F412043FB940016D1AE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 76539F3F2043FB940016D1AE /* Main.storyboard */; };
-		76AD3AC72046D0AE001D0A73 /* SuggestedSnap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AD3AC62046D0AE001D0A73 /* SuggestedSnap.swift */; };
 		76FF1F652045C99D00A2796C /* SuggestedSnapsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76FF1F642045C99D00A2796C /* SuggestedSnapsViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -29,13 +30,14 @@
 		762152802049960E00D7F974 /* SuggestedSnapsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedSnapsWindowController.swift; sourceTree = "<group>"; };
 		763F19D720442C6000FCA125 /* Windows.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Windows.png; sourceTree = "<group>"; };
 		7641DB93204926E300BD9971 /* SuggestedSnapsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedSnapsModel.swift; sourceTree = "<group>"; };
+		764D2AAF204BBD7A0005B7C1 /* DesktopWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesktopWindow.swift; sourceTree = "<group>"; };
+		764D2AB1204BE5550005B7C1 /* SnapHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapHelper.swift; sourceTree = "<group>"; };
 		76539F362043FB940016D1AE /* DesktopSplitter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DesktopSplitter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		76539F392043FB940016D1AE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		76539F3D2043FB940016D1AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		76539F402043FB940016D1AE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		76539F422043FB940016D1AE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		76539F432043FB940016D1AE /* DesktopSplitter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DesktopSplitter.entitlements; sourceTree = "<group>"; };
-		76AD3AC62046D0AE001D0A73 /* SuggestedSnap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedSnap.swift; sourceTree = "<group>"; };
 		76FF1F642045C99D00A2796C /* SuggestedSnapsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedSnapsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -50,6 +52,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		764D2AAE204BBD2B0005B7C1 /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				764D2AB1204BE5550005B7C1 /* SnapHelper.swift */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
 		765169B4204AADD9000C48F5 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -69,7 +79,6 @@
 		765169B6204AADF7000C48F5 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				76AD3AC62046D0AE001D0A73 /* SuggestedSnap.swift */,
 				7641DB93204926E300BD9971 /* SuggestedSnapsModel.swift */,
 			);
 			path = Models;
@@ -103,6 +112,7 @@
 		76539F382043FB940016D1AE /* DesktopSplitter */ = {
 			isa = PBXGroup;
 			children = (
+				764D2AAE204BBD2B0005B7C1 /* Util */,
 				765169B7204AAED0000C48F5 /* UI */,
 				765169B6204AADF7000C48F5 /* Models */,
 				765169B5204AADF1000C48F5 /* Views */,
@@ -110,6 +120,7 @@
 				76539F3D2043FB940016D1AE /* Assets.xcassets */,
 				763F19D720442C6000FCA125 /* Windows.png */,
 				76539F392043FB940016D1AE /* AppDelegate.swift */,
+				764D2AAF204BBD7A0005B7C1 /* DesktopWindow.swift */,
 				762152802049960E00D7F974 /* SuggestedSnapsWindowController.swift */,
 				7621527E2049953700D7F974 /* SuggestedSnapsWindow.swift */,
 				761D06442046865700425D7A /* SuggestedSnapItem.swift */,
@@ -201,8 +212,9 @@
 				76539F3A2043FB940016D1AE /* AppDelegate.swift in Sources */,
 				76FF1F652045C99D00A2796C /* SuggestedSnapsViewController.swift in Sources */,
 				760ADDEC204904F300EBB00A /* SuggestedSnapsView.swift in Sources */,
-				76AD3AC72046D0AE001D0A73 /* SuggestedSnap.swift in Sources */,
+				764D2AB0204BBD7A0005B7C1 /* DesktopWindow.swift in Sources */,
 				761D06462046865700425D7A /* SuggestedSnapItem.swift in Sources */,
+				764D2AB2204BE5550005B7C1 /* SnapHelper.swift in Sources */,
 				7641DB94204926E300BD9971 /* SuggestedSnapsModel.swift in Sources */,
 				7621527F2049953700D7F974 /* SuggestedSnapsWindow.swift in Sources */,
 			);

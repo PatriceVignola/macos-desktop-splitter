@@ -7,13 +7,18 @@
 //
 
 class SuggestedSnapsModel {
-    private var suggestedSnaps = [SuggestedSnap]()
+    var suggestedSnapDirection = SnapHelper.SnapDirection.None
+    private var suggestedSnaps = [DesktopWindow]()
     
-    func add(suggestedSnap: SuggestedSnap) {
-        suggestedSnaps.append(suggestedSnap)
+    func add(newSuggestedSnap: DesktopWindow) {
+        suggestedSnaps.append(newSuggestedSnap)
     }
     
-    func getSuggestedSnap(atIndex index:Int) -> SuggestedSnap {
+    func add(newSuggestedSnaps: [DesktopWindow]) {
+        suggestedSnaps += newSuggestedSnaps
+    }
+    
+    func getSuggestedSnap(atIndex index:Int) -> DesktopWindow {
         return suggestedSnaps[index]
     }
     

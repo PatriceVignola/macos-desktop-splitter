@@ -9,39 +9,9 @@
 import Cocoa
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate, SuggestedSnapDelegate {
-    func didSelect(suggestedSnap: SuggestedSnap) {
-        // TODO: Add support for multiple screens
-        let snapRect = getSnapRect(forSnapDirection: getMirrorSnapDirection(latestSnapPosition))
-        
-        var snapOrigin = snapRect.origin
-        var snapSize = snapRect.size
-        
-        let axSnapOrigin = AXValueCreate(AXValueType(rawValue: kAXValueCGPointType)!, &snapOrigin)!
-        let axSnapSize = AXValueCreate(AXValueType(rawValue: kAXValueCGSizeType)!, &snapSize)!
-        
-        var axWindows: AnyObject?
-        let axApp = AXUIElementCreateApplication(suggestedSnap.processId)
-        let result = AXUIElementCopyAttributeValue(axApp, kAXWindowsAttribute as CFString, &axWindows)
-        
-        if result == .success {
-            if let axWindows = axWindows as? [AXUIElement] {
-                let axWindow = axWindows[suggestedSnap.index]
-                AXUIElementSetAttributeValue(axWindow, kAXPositionAttribute as CFString, axSnapOrigin)
-                AXUIElementSetAttributeValue(axWindow, kAXSizeAttribute as CFString, axSnapSize)
-                AXUIElementSetAttributeValue(axWindow, kAXMainAttribute as CFString, kCFBooleanTrue)
-            }
-        }
-    }
-    
-    @IBOutlet weak var mainMenu: NSMenu!
+class AppDelegate: NSObject, NSApplicationDelegate {
+    @IBOutlet weak private var mainMenu: NSMenu!
     var statusItem: NSStatusItem?
-    
-    private enum SnapDirection {
-        case None, FullScreen, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight
-    }
-   
-    private var latestSnapPosition = SnapDirection.None
     
     private func handleKeyPress(_ event: NSEvent) {
         guard event.modifierFlags.intersection(.deviceIndependentFlagsMask).contains(.control) else { return }
@@ -51,7 +21,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SuggestedSnapDelegate {
         
         let pressedKey = Int(event.charactersIgnoringModifiers!.unicodeScalars.first!.value)
         
-        var snapDirection: SnapDirection?
+        var snapDirection: SnapHelper.SnapDirection?
         
         switch pressedKey {
         case NSRightArrowFunctionKey:
@@ -71,129 +41,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, SuggestedSnapDelegate {
         }
     }
     
-    private func getSnapRect(forSnapDirection snapDirection:SnapDirection) -> NSRect {
-        // TODO: Add support for multiple screens
-        // TODO: Maybe return nil instead of default NSRect()
-        guard let screen = NSScreen.main?.visibleFrame else { return NSRect() }
+    private func snapProcessWindow(processId: pid_t, snapDirection: SnapHelper.SnapDirection) {
+        guard let keyWindow = (DesktopWindow.getOpenedWindows().filter { $0.isKey }).first else { return }
         
-        var snapRect = NSRect()
+        keyWindow.set(frame: SnapHelper.getSnapRect(for: snapDirection))
         
-        switch snapDirection {
-        case .FullScreen:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width, height: screen.size.height)
-        case .Left:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height)
-        case .Right:
-            snapRect.origin = NSPoint(x: screen.minX + screen.size.width / 2, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height)
-        case .Top:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width, height: screen.size.height / 2)
-        case .Bottom:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY + screen.size.height / 2)
-            snapRect.size = NSSize(width: screen.size.width, height: screen.size.height / 2)
-        case .TopLeft:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height / 2)
-        case .TopRight:
-            snapRect.origin = NSPoint(x: screen.minX + screen.size.width / 2, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height / 2)
-        case .BottomLeft:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY + screen.size.height / 2)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height / 2)
-        case .BottomRight:
-            snapRect.origin = NSPoint(x: screen.minX + screen.size.width / 2, y: screen.minY + screen.size.height / 2)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height / 2)
-        default:
-            break
-        }
+        let sb = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+        let controllerId = NSStoryboard.SceneIdentifier.init(rawValue: "SuggestedSnapsWindowController")
+        let controller = sb.instantiateController(withIdentifier: controllerId) as! SuggestedSnapsWindowController
         
-        return snapRect
-    }
-    
-    private func getMirrorSnapDirection(_ snapDirection: SnapDirection) -> SnapDirection {
-        switch snapDirection {
-        case .None:
-            return .None
-        case .FullScreen:
-            return .None
-        case .Left:
-            return .Right
-        case .Right:
-            return .Left
-        case .Top:
-            return .Bottom
-        case .Bottom:
-            return .Top
-        case .TopLeft:
-            return .BottomLeft
-        case .TopRight:
-            return .BottomRight
-        case .BottomLeft:
-            return .TopLeft
-        case .BottomRight:
-            return .TopRight
-        }
-    }
-    
-    private func snapProcessWindow(processId: pid_t, snapDirection: SnapDirection) {
-        guard let screen = NSScreen.main?.visibleFrame else { return }
-        
-        latestSnapPosition = snapDirection
-        
-        let snapRect = getSnapRect(forSnapDirection: snapDirection)
-        
-        var snapOrigin = snapRect.origin
-        var snapSize = snapRect.size
-        
-        let axSnapOrigin = AXValueCreate(AXValueType(rawValue: kAXValueCGPointType)!, &snapOrigin)!
-        let axSnapSize = AXValueCreate(AXValueType(rawValue: kAXValueCGSizeType)!, &snapSize)!
-        
-        var windows: AnyObject?
-        let windowAppRef = AXUIElementCreateApplication(processId)
-        
-        var axResult = AXUIElementCopyAttributeValue(windowAppRef, kAXWindowsAttribute as CFString, &windows)
-        
-        switch axResult {
-        case .success:
-            // TODO: Put in separate function
-            
-            if let windows = (windows as? [AXUIElement]) {
-                for window in windows {
-                    var isFocusedWindow: AnyObject?
-                    axResult = AXUIElementCopyAttributeValue(window, kAXMainAttribute as CFString, &isFocusedWindow)
-                    
-                    if axResult == .success && (isFocusedWindow as! CFBoolean) == kCFBooleanTrue {
-                        AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, axSnapOrigin)
-                        AXUIElementSetAttributeValue(window, kAXSizeAttribute as CFString, axSnapSize)
-                        break
-                    }
-                }
-            }
-        case .apiDisabled:
-            NSLog("Enable the accessibility features for this app")
-        // TODO: Add a user-friendly message and a refresh or retry button
-        default:
-            NSLog("Can't get the accessibility attributes for the window")
-        }
-        
-        // TODO: Refactor in another method and call it in the .success most nested block
-        let storyboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
-        let controller = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier.init(rawValue: "SuggestedSnapsWindowController")) as! NSWindowController
-        
-        if snapDirection != .FullScreen, let snapshotWindow = controller.window {
-            var snapshotRect = getSnapRect(forSnapDirection: getMirrorSnapDirection(snapDirection))
-            
-            // Convert from AX space to frame space
-            let frameSpaceY = screen.height - snapshotRect.height - snapshotRect.origin.y
-            snapshotRect.origin = NSPoint(x: snapshotRect.origin.x, y: frameSpaceY)
-            
-            snapshotWindow.setFrame(snapshotRect, display: true)
-            NSApplication.shared.runModal(for: snapshotWindow)
-            snapshotWindow.close()
-        }
+        controller.set(suggestedSnapDirection: SnapHelper.getMirror(of: snapDirection))
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {

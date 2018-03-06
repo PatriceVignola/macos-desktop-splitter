@@ -10,7 +10,7 @@ import Cocoa
 
 protocol SuggestedSnapsViewDelegate: AnyObject {
     func didRequestClose()
-    func didSelect(suggestedSnap: SuggestedSnap)
+    func didSelect(suggestedSnap: DesktopWindow)
 }
 
 class SuggestedSnapsView: NSCollectionView {
@@ -18,7 +18,7 @@ class SuggestedSnapsView: NSCollectionView {
     
     private lazy var flowLayout = NSCollectionViewFlowLayout()
     
-    func suggestedSnapSelected(suggestedSnap: SuggestedSnap) {
+    func didSelect(suggestedSnap: DesktopWindow) {
         suggestedSnapsViewDelegate?.didSelect(suggestedSnap: suggestedSnap)
     }
     
