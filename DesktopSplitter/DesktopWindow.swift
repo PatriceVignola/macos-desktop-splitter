@@ -103,7 +103,7 @@ class DesktopWindow {
                 guard let title = cgWindow[kCGWindowName as String] as? String else { continue }
                 guard let icon = app.icon else { continue }
                 
-                let screenshotSize = NSSize(width: bounds.width, height: bounds.height)
+                let screenshotSize = NSSize(width: cgScreenshot.width, height: cgScreenshot.height)
                 
                 let openedWindow = DesktopWindow(
                     indexInApp: i,

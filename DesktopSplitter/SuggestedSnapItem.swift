@@ -15,11 +15,19 @@ protocol SuggestedSnapItemDelegate: AnyObject {
 class SuggestedSnapItem: NSCollectionViewItem {
     var delegate: SuggestedSnapItemDelegate?
     
+    @IBOutlet weak private var icon: NSImageView?
+    
     var suggestedSnap: DesktopWindow? {
         didSet {
             guard isViewLoaded else { return }
             
-            imageView?.image = suggestedSnap?.screenshot
+            if suggestedSnap != nil {
+                imageView?.image = suggestedSnap!.screenshot
+                textField?.stringValue = suggestedSnap!.title
+                icon?.image = suggestedSnap!.icon
+                
+                NSLog("\(suggestedSnap!.title)")
+            }
         }
     }
     
