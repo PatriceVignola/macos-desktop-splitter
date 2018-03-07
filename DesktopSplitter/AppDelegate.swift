@@ -13,48 +13,54 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak private var mainMenu: NSMenu!
     var statusItem: NSStatusItem?
     
+    var snapDirection = SnapHelper.SnapDirection.None
+    var modifiersPressed = false
+    
     private func handleKeyPress(_ event: NSEvent) {
-        guard event.modifierFlags.intersection(.deviceIndependentFlagsMask).contains(.control) else { return }
-        guard event.modifierFlags.intersection(.deviceIndependentFlagsMask).contains(.option) else { return }
-        guard !event.isARepeat else { return }
-        guard let focusedProcessId = NSWorkspace.shared.frontmostApplication?.processIdentifier else { return }
+        guard !event.isARepeat && modifiersPressed else { return }
         
-        let pressedKey = Int(event.charactersIgnoringModifiers!.unicodeScalars.first!.value)
+        let keyCode = Int(event.charactersIgnoringModifiers!.unicodeScalars.first!.value)
+        snapDirection = SnapHelper.getNextSnapDirection(fromPrevious: snapDirection, withArrowCode: keyCode)
         
-        var snapDirection: SnapHelper.SnapDirection?
-        
-        switch pressedKey {
-        case NSRightArrowFunctionKey:
-            snapDirection = .Right
-        case NSLeftArrowFunctionKey:
-            snapDirection = .Left
-        case NSUpArrowFunctionKey:
-            snapDirection = .Top
-        case NSDownArrowFunctionKey:
-            snapDirection = .Bottom
-        default:
-            NSLog("Unsupported key pressed")
-        }
-        
-        if snapDirection != nil {
-            snapProcessWindow(processId: focusedProcessId, snapDirection: snapDirection!)
+        if snapDirection != .None {
+            snapKeyWindow()
         }
     }
     
-    private func snapProcessWindow(processId: pid_t, snapDirection: SnapHelper.SnapDirection) {
+    private func handleModifierKeys(_ event: NSEvent) {
+        // TODO: Let the user customize the modifier keys instead of hardcoding them
+        switch event.modifierFlags.intersection(.deviceIndependentFlagsMask) {
+        case [.control, .option]:
+            modifiersPressed = true
+        default:
+            modifiersPressed = false
+            
+            if snapDirection != .None && snapDirection != .FullScreen {
+                let suggestedSnapDirection = SnapHelper.getMirror(of: snapDirection)
+                snapDirection = .None
+                showSuggestedSnapsWindow(to: suggestedSnapDirection)
+            }
+        }
+    }
+    
+    private func snapKeyWindow() {
         guard let keyWindow = (DesktopWindow.getOpenedWindows().filter { $0.isKey }).first else { return }
+        guard snapDirection != .None else { return }
         
         keyWindow.set(frame: SnapHelper.getSnapRect(for: snapDirection))
-        
+    }
+    
+    private func showSuggestedSnapsWindow(to suggestedSnapDirection: SnapHelper.SnapDirection) {
         let sb = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
         let controllerId = NSStoryboard.SceneIdentifier.init(rawValue: "SuggestedSnapsWindowController")
         let controller = sb.instantiateController(withIdentifier: controllerId) as! SuggestedSnapsWindowController
         
-        controller.set(suggestedSnapDirection: SnapHelper.getMirror(of: snapDirection))
+        controller.set(suggestedSnapDirection: suggestedSnapDirection)
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: handleKeyPress)
+        NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged, handler: handleModifierKeys)
         
         // Make a status bar that has variable length (as opposed to being a standard square size)
         // -1 to indicate "variable length"

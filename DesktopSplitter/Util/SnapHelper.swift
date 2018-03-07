@@ -79,4 +79,57 @@ class SnapHelper {
             return .TopRight
         }
     }
+    
+    static func getNextSnapDirection(fromPrevious previousSnapDirection: SnapDirection,
+                                      withArrowCode arrowCode: Int) -> SnapDirection {
+        var nextSnapDirection = previousSnapDirection
+        
+        switch arrowCode {
+        case NSRightArrowFunctionKey:
+            switch previousSnapDirection {
+            case .None, .FullScreen, .Left, .BottomLeft, .TopLeft, .BottomRight, .TopRight, .Right:
+                nextSnapDirection = .Right
+            case .Bottom:
+                nextSnapDirection = .BottomRight
+            case .Top:
+                nextSnapDirection = .TopRight
+            }
+        case NSLeftArrowFunctionKey:
+            switch previousSnapDirection {
+            case .None, .FullScreen, .Right, .BottomLeft, .TopLeft, .BottomRight, .TopRight, .Left:
+                nextSnapDirection = .Left
+            case .Bottom:
+                nextSnapDirection = .BottomLeft
+            case .Top:
+                nextSnapDirection = .TopLeft
+            }
+        case NSUpArrowFunctionKey:
+            switch previousSnapDirection {
+            case .None, .Bottom, .BottomLeft, .BottomRight, .TopLeft, .TopRight, .FullScreen:
+                nextSnapDirection = .Top
+            case .Left:
+                nextSnapDirection = .TopLeft
+            case .Right:
+                nextSnapDirection = .TopRight
+            case .Top:
+                nextSnapDirection = .FullScreen
+            }
+        case NSDownArrowFunctionKey:
+            switch previousSnapDirection {
+            case .None, .Top, .BottomLeft, .BottomRight, .TopLeft, .TopRight, .FullScreen:
+                nextSnapDirection = .Bottom
+            case .Left:
+                nextSnapDirection = .BottomLeft
+            case .Right:
+                nextSnapDirection = .BottomRight
+            case .Bottom:
+                // TODO: Add a "Minimized" snap direction
+                nextSnapDirection = .Bottom
+            }
+        default:
+            break
+        }
+        
+        return nextSnapDirection
+    }
 }
