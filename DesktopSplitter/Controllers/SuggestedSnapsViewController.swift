@@ -10,6 +10,7 @@ import Cocoa
 
 protocol SuggestedSnapsViewControllerDelegate: AnyObject {
     func viewControllerDidSnapWindow()
+    func viewControllerDidCancel()
 }
 
 class SuggestedSnapsViewController: NSViewController {
@@ -20,16 +21,19 @@ class SuggestedSnapsViewController: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         suggestedSnapsView.dataSource = self
         generateSuggestedSnaps()
     }
     
     override func viewDidAppear() {
         super.viewDidAppear()
-        
         suggestedSnapsView?.numItemsDidChange(numItems: model.numSuggestedSnaps)
         suggestedSnapsView?.delegate = self
+    }
+    
+    override func cancelOperation(_ sender: Any?) {
+        // TODO: Re-make the previous window key
+        delegate?.viewControllerDidCancel()
     }
     
     func set(suggestedSnapDirection: SnapHelper.SnapDirection) {
@@ -70,6 +74,7 @@ extension SuggestedSnapsViewController: NSCollectionViewDelegate {
         suggestedSnap.set(frame: snapRect)
         suggestedSnap.bringToFront()
         
+        // TODO: Remake the previous window key
         delegate?.viewControllerDidSnapWindow()
     }
 }

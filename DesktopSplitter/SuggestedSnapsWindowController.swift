@@ -11,13 +11,25 @@ import Cocoa
 class SuggestedSnapsWindowController: NSWindowController {
     private var suggestedSnapsViewController: SuggestedSnapsViewController?
     
-    func set(suggestedSnapDirection: SnapHelper.SnapDirection) {
+    override func windowDidLoad() {
+        super.windowDidLoad()
+        
+        window?.isOpaque = false
+        window?.backgroundColor = NSColor(calibratedWhite: 0.0, alpha: 0.7)
+        
+        suggestedSnapsViewController = contentViewController as? SuggestedSnapsViewController
+        
+        NSApplication.shared.activate(ignoringOtherApps: true)
+    }
+    
+    func setSuggestedSnapDirection(_ suggestedSnapDirection: SnapHelper.SnapDirection) {
         if suggestedSnapDirection != .FullScreen, let screen = NSScreen.main?.visibleFrame, let window = window {
             var snapshotRect = SnapHelper.getSnapRect(for: suggestedSnapDirection)
             
             // Convert from AX space to frame space
             let frameSpaceY = screen.height - snapshotRect.height - snapshotRect.origin.y
             snapshotRect.origin = NSPoint(x: snapshotRect.origin.x, y: frameSpaceY)
+            
             window.setFrame(snapshotRect, display: true)
             suggestedSnapsViewController?.set(suggestedSnapDirection: suggestedSnapDirection)
             suggestedSnapsViewController?.delegate = self
@@ -29,21 +41,20 @@ class SuggestedSnapsWindowController: NSWindowController {
         
         dismissController(self)
     }
-    
-    func viewControllerDidSnapWindow() {
+}
+
+extension SuggestedSnapsWindowController: NSWindowDelegate {
+    func windowDidResignKey(_ notification: Notification) {
         NSApplication.shared.stopModal()
     }
 }
 
 extension SuggestedSnapsWindowController: SuggestedSnapsViewControllerDelegate {
-    override func windowDidLoad() {
-        super.windowDidLoad()
-        
-        window?.isOpaque = false
-        window?.backgroundColor = NSColor(calibratedWhite: 0.0, alpha: 0.7)
-        
-        suggestedSnapsViewController = contentViewController as? SuggestedSnapsViewController
-        
-        NSApplication.shared.activate(ignoringOtherApps: true)
+    func viewControllerDidSnapWindow() {
+        NSApplication.shared.stopModal()
+    }
+    
+    func viewControllerDidCancel() {
+        NSApplication.shared.stopModal()
     }
 }

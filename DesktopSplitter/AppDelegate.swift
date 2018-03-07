@@ -55,7 +55,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let controllerId = NSStoryboard.SceneIdentifier.init(rawValue: "SuggestedSnapsWindowController")
         let controller = sb.instantiateController(withIdentifier: controllerId) as! SuggestedSnapsWindowController
         
-        controller.set(suggestedSnapDirection: suggestedSnapDirection)
+        controller.setSuggestedSnapDirection(suggestedSnapDirection)
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
