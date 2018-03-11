@@ -23,6 +23,12 @@ class SuggestedSnapsViewController: NSViewController {
         super.viewDidLoad()
         suggestedSnapsView.dataSource = self
         generateSuggestedSnaps()
+        
+        // TODO: Test the accessibility "windowCreated" event to get a notification when new windows are opened
+        // https://developer.apple.com/documentation/appkit/nsaccessibilitynotificationname/1528694-windowcreated
+        
+        // TODO: Test the accessibility "uiElementDestroyed" event to get a notification when windows are closed
+        // https://developer.apple.com/documentation/appkit/nsaccessibilitynotificationname/1530862-uielementdestroyed
     }
     
     override func viewDidAppear() {
@@ -36,7 +42,7 @@ class SuggestedSnapsViewController: NSViewController {
         delegate?.viewControllerDidCancel()
     }
     
-    func set(suggestedSnapDirection: SnapHelper.SnapDirection) {
+    func setSuggestedSnapDirection(_ suggestedSnapDirection: SnapHelper.SnapDirection) {
         model.suggestedSnapDirection = suggestedSnapDirection
     }
     

@@ -16,6 +16,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var snapDirection = SnapHelper.SnapDirection.None
     var modifiersPressed = false
     
+    private let statusBarImageName = "Windows.png"
+    
     private func handleKeyPress(_ event: NSEvent) {
         guard !event.isARepeat && modifiersPressed else { return }
         
@@ -34,12 +36,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             modifiersPressed = true
         default:
             modifiersPressed = false
-            
-            if snapDirection != .None && snapDirection != .FullScreen {
-                let suggestedSnapDirection = SnapHelper.getMirror(of: snapDirection)
-                snapDirection = .None
-                showSuggestedSnapsWindow(to: suggestedSnapDirection)
-            }
+            handleModifierKeysReleased()
+        }
+    }
+    
+    private func handleModifierKeysReleased() {
+        if snapDirection != .None && snapDirection != .FullScreen {
+            let suggestedSnapDirection = SnapHelper.getMirror(of: snapDirection)
+            snapDirection = .None
+            showSuggestedSnapsWindow(to: suggestedSnapDirection)
         }
     }
     
@@ -51,33 +56,37 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func showSuggestedSnapsWindow(to suggestedSnapDirection: SnapHelper.SnapDirection) {
-        let sb = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
-        let controllerId = NSStoryboard.SceneIdentifier.init(rawValue: "SuggestedSnapsWindowController")
-        let controller = sb.instantiateController(withIdentifier: controllerId) as! SuggestedSnapsWindowController
+        let openedWindows = DesktopWindow.getOpenedWindows()
         
-        controller.setSuggestedSnapDirection(suggestedSnapDirection)
+        if openedWindows.count > 1 {
+            let sb = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+            let controllerId = NSStoryboard.SceneIdentifier.init(rawValue: "SuggestedSnapsWindowController")
+            let controller = sb.instantiateController(withIdentifier: controllerId) as! SuggestedSnapsWindowController
+            
+            // TODO: Pass the opened windows to the controller and don't fetch them again when the controller loads
+            controller.setSuggestedSnapDirection(suggestedSnapDirection)
+        }
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: handleKeyPress)
         NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged, handler: handleModifierKeys)
         
-        // Make a status bar that has variable length (as opposed to being a standard square size)
-        // -1 to indicate "variable length"
-        self.statusItem = NSStatusBar.system.statusItem(withLength: -1)
+        // Create a status bar with variable length
+        statusItem = NSStatusBar.system.statusItem(withLength: -1)
         
         // Set the text that appears in the menu bar
-        self.statusItem?.image = NSImage(named: NSImage.Name("Windows.png"))
-        self.statusItem?.image?.size = NSSize(width: 20, height: 20)
-        self.statusItem?.length = 30
+        statusItem?.image = NSImage(named: NSImage.Name("Windows.png"))
+        statusItem?.image?.size = NSSize(width: 20, height: 20)
+        statusItem?.length = 30
         // image should be set as tempate so that it changes when the user sets the menu bar to a dark theme
-        self.statusItem?.image?.isTemplate = true
+        statusItem?.image?.isTemplate = true
         
         // Set the menu that should appear when the item is clicked
-        self.statusItem!.menu = self.mainMenu
+        statusItem?.menu = mainMenu
         
         // Set if the item should change color when clicked
-        self.statusItem!.highlightMode = true
+        statusItem?.highlightMode = true
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

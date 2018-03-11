@@ -31,7 +31,7 @@ class SuggestedSnapsWindowController: NSWindowController {
             snapshotRect.origin = NSPoint(x: snapshotRect.origin.x, y: frameSpaceY)
             
             window.setFrame(snapshotRect, display: true)
-            suggestedSnapsViewController?.set(suggestedSnapDirection: suggestedSnapDirection)
+            suggestedSnapsViewController?.setSuggestedSnapDirection(suggestedSnapDirection)
             suggestedSnapsViewController?.delegate = self
             
             NSApplication.shared.runModal(for: window)
