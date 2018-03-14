@@ -12,8 +12,11 @@ class SuggestedSnapsView: NSCollectionView {
     @IBOutlet weak private var flowLayout: NSCollectionViewFlowLayout?
     
     private var trackingArea: NSTrackingArea?
+    var focusedIndexPath: IndexPath?
     
     override func awakeFromNib() {
+        super.awakeFromNib()
+        
         guard let flowLayout = flowLayout else { return }
         
         flowLayout.sectionInset = NSEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
@@ -21,18 +24,15 @@ class SuggestedSnapsView: NSCollectionView {
         flowLayout.minimumLineSpacing = 30
     }
     
-    override func keyDown(with event: NSEvent) {
-        super.keyDown(with: event)
-        NSLog("KeyDown fired in SuggestedSnapsView")
+    override func setFrameSize(_ newSize: NSSize) {
+        super.setFrameSize(newSize)
+        updateItemSize()
     }
     
-    override func mouseEntered(with event: NSEvent) {
-        super.mouseEntered(with: event)
-        NSLog("Mouse Entered in Collection")
-    }
-    
-    func numItemsDidChange(numItems: Int) {
+    private func updateItemSize() {
         guard let flowLayout = flowLayout else { return }
+        
+        let numItems = numberOfItems(inSection: 0)
         
         var maxContentWidth = frame.width
         maxContentWidth -= flowLayout.sectionInset.left + flowLayout.sectionInset.right
@@ -47,6 +47,57 @@ class SuggestedSnapsView: NSCollectionView {
         itemSize.height -= flowLayout.minimumLineSpacing
         
         flowLayout.itemSize = itemSize
+    }
+    
+    override func makeItem(withIdentifier identifier: NSUserInterfaceItemIdentifier,
+                           for indexPath: IndexPath) -> NSCollectionViewItem {
+        let item = super.makeItem(withIdentifier: identifier, for: indexPath)
+        
+        if focusedIndexPath == nil {
+            (delegate as? SuggestedSnapsViewDelegate)?.collectionView(self, didFocusItem: item)
+            focusedIndexPath = indexPath
+        }
+        
+        return item
+    }
+    
+    override func moveLeft(_ sender: Any?) {
+        incrementFocusedIndex(by: -1)
+    }
+    
+    override func moveRight(_ sender: Any?) {
+        incrementFocusedIndex(by: 1)
+    }
+    
+    override func moveUp(_ sender: Any?) {
+        // TODO: Decrement the index by the number of columns
+    }
+    
+    override func moveDown(_ sender: Any?) {
+        // TODO: Increment the index by the number of columns
+    }
+    
+    override func insertNewline(_ sender: Any?) {
+        if let focusedIndexPath = focusedIndexPath {
+            delegate?.collectionView!(self, didSelectItemsAt: [focusedIndexPath])
+        }
+    }
+    
+    private func incrementFocusedIndex(by increment: Int) {
+        guard let delegate = delegate as? SuggestedSnapsViewDelegate else { return }
+        guard let focusedIndexPath = focusedIndexPath else { return }
+        
+        let newFocusedIndexPath = IndexPath(item: focusedIndexPath.item + increment, section: focusedIndexPath.section)
+        
+        if let newFocusedItem = item(at: newFocusedIndexPath) {
+            delegate.collectionView(self, didFocusItem: newFocusedItem)
+            
+            if let oldFocusedItem = item(at: focusedIndexPath) {
+                delegate.collectionView(self, didUnfocusItem: oldFocusedItem)
+            }
+            
+            self.focusedIndexPath = newFocusedIndexPath
+        }
     }
     
     // TODO: Delete once the optimal size for every item has been calculated in the controller
@@ -77,3 +128,8 @@ class SuggestedSnapsView: NSCollectionView {
         return NSSize(width: sx, height: sy)
     }
 }
+
+protocol SuggestedSnapsViewDelegate : NSCollectionViewDelegate {
+    func collectionView(_ collectionView: NSCollectionView, didUnfocusItem item: NSCollectionViewItem)
+    func collectionView(_ collectionView: NSCollectionView, didFocusItem item: NSCollectionViewItem)
+} 

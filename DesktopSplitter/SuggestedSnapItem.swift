@@ -8,13 +8,9 @@
 
 import Cocoa
 
-protocol SuggestedSnapItemDelegate: AnyObject {
-    func userDidSelect(suggestedSnap: DesktopWindow)
-}
-
 class SuggestedSnapItem: NSCollectionViewItem {
     @IBOutlet weak private var icon: NSImageView?
-    
+
     private let defaultBackgroundColor = NSColor(calibratedWhite: 0, alpha: 0)
     private let hoverBackgroundColor = NSColor(calibratedWhite: 0, alpha: 0.7)
  
@@ -46,8 +42,6 @@ class SuggestedSnapItem: NSCollectionViewItem {
                 imageView?.image = suggestedSnap!.screenshot
                 textField?.stringValue = suggestedSnap!.title
                 icon?.image = suggestedSnap!.icon
-                
-                NSLog("\(suggestedSnap!.title)")
             }
         }
     }
