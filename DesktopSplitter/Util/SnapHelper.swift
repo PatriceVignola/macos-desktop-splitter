@@ -20,34 +20,42 @@ class SnapHelper {
         
         var snapRect = NSRect()
         
+        // TODO: Check if it still works if the dock menu is vertical (left or right of the screen)
+        let minX = screen.minX
+        var minY = screen.minY
+        
+        if let mainMenu = NSApplication.shared.mainMenu {
+            minY += mainMenu.menuBarHeight
+        }
+        
         switch snapDirection {
         case .FullScreen:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width, height: screen.size.height)
+            snapRect.origin = NSPoint(x: minX, y: minY)
+            snapRect.size = NSSize(width: screen.width, height: screen.height)
         case .Left:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height)
+            snapRect.origin = NSPoint(x: minX, y: minY)
+            snapRect.size = NSSize(width: screen.width / 2, height: screen.height)
         case .Right:
-            snapRect.origin = NSPoint(x: screen.minX + screen.size.width / 2, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height)
+            snapRect.origin = NSPoint(x: minX + screen.width / 2, y: minY)
+            snapRect.size = NSSize(width: screen.width / 2, height: screen.height)
         case .Top:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width, height: screen.size.height / 2)
+            snapRect.origin = NSPoint(x: minX, y: minY)
+            snapRect.size = NSSize(width: screen.width, height: screen.height / 2)
         case .Bottom:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY + screen.size.height / 2)
-            snapRect.size = NSSize(width: screen.size.width, height: screen.size.height / 2)
+            snapRect.origin = NSPoint(x: minX, y: minY + screen.height / 2)
+            snapRect.size = NSSize(width: screen.width, height: screen.height / 2)
         case .TopLeft:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height / 2)
+            snapRect.origin = NSPoint(x: minX, y: minY)
+            snapRect.size = NSSize(width: screen.width / 2, height: screen.height / 2)
         case .TopRight:
-            snapRect.origin = NSPoint(x: screen.minX + screen.size.width / 2, y: screen.minY)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height / 2)
+            snapRect.origin = NSPoint(x: minX + screen.width / 2, y: minY)
+            snapRect.size = NSSize(width: screen.width / 2, height: screen.height / 2)
         case .BottomLeft:
-            snapRect.origin = NSPoint(x: screen.minX, y: screen.minY + screen.size.height / 2)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height / 2)
+            snapRect.origin = NSPoint(x: minX, y: minY + screen.height / 2)
+            snapRect.size = NSSize(width: screen.width / 2, height: screen.height / 2)
         case .BottomRight:
-            snapRect.origin = NSPoint(x: screen.minX + screen.size.width / 2, y: screen.minY + screen.size.height / 2)
-            snapRect.size = NSSize(width: screen.size.width / 2, height: screen.size.height / 2)
+            snapRect.origin = NSPoint(x: minX + screen.width / 2, y: minY + screen.height / 2)
+            snapRect.size = NSSize(width: screen.width / 2, height: screen.height / 2)
         default:
             break
         }
