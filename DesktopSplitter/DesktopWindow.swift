@@ -150,11 +150,6 @@ class DesktopWindow {
             return axWindows
         }
         
-        if axResult == .apiDisabled {
-            // TODO: Find the best way to handle the error and retry the operation
-            NSLog("Enable the accessibility features for this app")
-        }
-        
         return [AXUIElement]()
     }
     
