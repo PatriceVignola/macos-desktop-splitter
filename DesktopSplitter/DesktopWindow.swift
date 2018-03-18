@@ -48,7 +48,15 @@ class DesktopWindow {
     
     func bringToFront() {
         AXUIElementSetAttributeValue(axWindow, kAXMainAttribute as CFString, kCFBooleanTrue)
+        AXUIElementSetAttributeValue(axWindow, kAXFrontmostAttribute as CFString, kCFBooleanTrue)
+        
+        
         set(isMinimized: false)
+    }
+    
+    func makeKey() {
+        NSRunningApplication(processIdentifier: processId)?.activate(options: .activateIgnoringOtherApps)
+        bringToFront()
     }
     
     func set(isMinimized: Bool) {

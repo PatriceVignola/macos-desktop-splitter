@@ -16,6 +16,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var snapDirection = SnapHelper.SnapDirection.None
     var modifiersMonitor: Any?
     var keyDownMonitor: Any?
+    var keyWindow: DesktopWindow?
     
     private let statusBarImageName = "Windows.png"
     
@@ -38,6 +39,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // showing the dialog box another time. This is why we don't use AXIsProcessTrustedWithOptions().
             if AXIsProcessTrusted() && keyDownMonitor == nil {
                 keyDownMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: handleKeyPress)
+                keyWindow = (DesktopWindow.getOpenedWindows().filter { $0.isKey }).first
             }
         default:
             if let keyDownMonitor = keyDownMonitor {
@@ -49,18 +51,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func handleModifierKeysReleased() {
-        if snapDirection != .None && snapDirection != .FullScreen {
-            let suggestedSnapDirection = SnapHelper.getMirror(of: snapDirection)
-            snapDirection = .None
-            showSuggestedSnapsWindow(to: suggestedSnapDirection)
-        }
+        guard snapDirection != .None && snapDirection != .FullScreen else { return }
+        
+        let suggestedSnapDirection = SnapHelper.getMirror(of: snapDirection)
+        snapDirection = .None
+        showSuggestedSnapsWindow(to: suggestedSnapDirection)
     }
     
     private func snapKeyWindow() {
-        guard let keyWindow = (DesktopWindow.getOpenedWindows().filter { $0.isKey }).first else { return }
         guard snapDirection != .None else { return }
         
-        keyWindow.set(frame: SnapHelper.getSnapRect(for: snapDirection))
+        keyWindow?.set(frame: SnapHelper.getSnapRect(for: snapDirection))
     }
     
     private func showSuggestedSnapsWindow(to suggestedSnapDirection: SnapHelper.SnapDirection) {
@@ -73,6 +74,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             // TODO: Pass the opened windows to the controller and don't fetch them again when the controller loads
             controller.setSuggestedSnapDirection(suggestedSnapDirection)
+            
+            // Once the suggested snaps window has been closed, we bring back the main window to front so that the
+            // user's workflow is not interrupted and he doesn't need to manually bring it back to front
+            keyWindow?.makeKey()
         }
     }
     

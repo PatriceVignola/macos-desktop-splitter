@@ -40,7 +40,6 @@ class SuggestedSnapsViewController : NSViewController {
     }
     
     override func cancelOperation(_ sender: Any?) {
-        // TODO: Re-make the previous window key
         delegate?.viewControllerDidCancel()
     }
     
