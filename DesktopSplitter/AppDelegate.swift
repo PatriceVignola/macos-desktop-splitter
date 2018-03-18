@@ -14,12 +14,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     
     var snapDirection = SnapHelper.SnapDirection.None
-    var modifiersPressed = false
+    var modifiersMonitor: Any?
+    var keyDownMonitor: Any?
     
     private let statusBarImageName = "Windows.png"
     
     private func handleKeyPress(_ event: NSEvent) {
-        guard !event.isARepeat && modifiersPressed else { return }
+        guard !event.isARepeat else { return }
         
         let keyCode = Int(event.charactersIgnoringModifiers!.unicodeScalars.first!.value)
         snapDirection = SnapHelper.getNextSnapDirection(fromPrevious: snapDirection, withArrowCode: keyCode)
@@ -33,10 +34,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // TODO: Let the user customize the modifier keys instead of hardcoding them
         switch event.modifierFlags.intersection(.deviceIndependentFlagsMask) {
         case [.control, .option]:
-            modifiersPressed = true
+            // If the user hasn't enabled the accessibility features for the app yet, we don't want to spam him by
+            // showing the dialog box another time. This is why we don't use AXIsProcessTrustedWithOptions().
+            if AXIsProcessTrusted() && keyDownMonitor == nil {
+                keyDownMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: handleKeyPress)
+            }
         default:
-            modifiersPressed = false
-            handleModifierKeysReleased()
+            if let keyDownMonitor = keyDownMonitor {
+                NSEvent.removeMonitor(keyDownMonitor)
+                self.keyDownMonitor = nil
+                handleModifierKeysReleased()
+            }
         }
     }
     
@@ -69,9 +77,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: handleKeyPress)
-        NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged, handler: handleModifierKeys)
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as CFString: true] as CFDictionary
+        AXIsProcessTrustedWithOptions(options)
+        modifiersMonitor = NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged, handler: handleModifierKeys)
         
+        initStatusItem()
+    }
+    
+    private func initStatusItem() {
         // Create a status bar with variable length
         statusItem = NSStatusBar.system.statusItem(withLength: -1)
         
@@ -90,6 +103,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
-        // Insert code here to tear down your application
+        if let modifiersMonitor = modifiersMonitor {
+            NSEvent.removeMonitor(modifiersMonitor)
+            self.modifiersMonitor = nil
+        }
     }
 }
