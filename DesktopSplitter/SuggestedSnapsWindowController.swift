@@ -15,20 +15,24 @@ class SuggestedSnapsWindowController: NSWindowController {
         super.windowDidLoad()
         
         window?.isOpaque = false
-        window?.backgroundColor = NSColor(calibratedWhite: 0.0, alpha: 0.7)
+        window?.alphaValue = 0
         
         suggestedSnapsViewController = contentViewController as? SuggestedSnapsViewController
         
         NSApplication.shared.activate(ignoringOtherApps: true)
+        
+        // TODO: Disable the input to make sure the usre doesn't accidentally select another window during the fadein
+        animateWindow(toAlpha: 1, forDurationInSeconds: 0.5, withCallback: nil)
     }
     
     func setSuggestedSnapDirection(_ suggestedSnapDirection: SnapHelper.SnapDirection) {
-        if suggestedSnapDirection != .FullScreen, let screen = NSScreen.main?.visibleFrame, let window = window {
-            var snapshotRect = SnapHelper.getSnapRect(for: suggestedSnapDirection)
+        if suggestedSnapDirection != .FullScreen, let window = window {
+            // NSWindow's origin is its bottom-left corner
+            var snapshotRect = SnapHelper.getSnapRect(for: suggestedSnapDirection, withOriginAt: .BottomLeft)
             
-            // Convert from AX space to frame space
-            let frameSpaceY = screen.height - snapshotRect.height - snapshotRect.origin.y
-            snapshotRect.origin = NSPoint(x: snapshotRect.origin.x, y: frameSpaceY)
+            if let mainMenu = NSApplication.shared.mainMenu {
+                snapshotRect.origin.y += mainMenu.menuBarHeight
+            }
             
             window.setFrame(snapshotRect, display: true)
             suggestedSnapsViewController?.setSuggestedSnapDirection(suggestedSnapDirection)
@@ -36,10 +40,19 @@ class SuggestedSnapsWindowController: NSWindowController {
             
             NSApplication.shared.runModal(for: window)
             
-            window.close()
+            // TODO: Disable the input to make sure the user doesn't select another window during the fadeout
+            animateWindow(toAlpha: 0, forDurationInSeconds: 0.5, withCallback: window.close)
         }
         
         dismissController(self)
+    }
+    
+    private func animateWindow(toAlpha alpha: CGFloat, forDurationInSeconds duration: TimeInterval,
+                               withCallback callback: (() -> Void)?) {
+        NSAnimationContext.runAnimationGroup({ (context) -> Void in
+            context.duration = duration
+            window?.animator().alphaValue = alpha
+        }, completionHandler: callback)
     }
 }
 

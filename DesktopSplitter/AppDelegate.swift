@@ -39,7 +39,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // showing the dialog box another time. This is why we don't use AXIsProcessTrustedWithOptions().
             if AXIsProcessTrusted() && keyDownMonitor == nil {
                 keyDownMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: handleKeyPress)
-                keyWindow = (DesktopWindow.getOpenedWindows().filter { $0.isKey }).first
+                keyWindow = (DesktopWindow.getOpenedWindows(includeMinimized: false).filter { $0.isKey }).first
             }
         default:
             if let keyDownMonitor = keyDownMonitor {
@@ -61,11 +61,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func snapKeyWindow() {
         guard snapDirection != .None else { return }
         
-        keyWindow?.set(frame: SnapHelper.getSnapRect(for: snapDirection))
+        keyWindow?.set(frame: SnapHelper.getSnapRect(for: snapDirection, withOriginAt: .TopLeft))
     }
     
     private func showSuggestedSnapsWindow(to suggestedSnapDirection: SnapHelper.SnapDirection) {
-        let openedWindows = DesktopWindow.getOpenedWindows()
+        let openedWindows = DesktopWindow.getOpenedWindows(includeMinimized: false)
         
         if openedWindows.count > 1 {
             let sb = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)

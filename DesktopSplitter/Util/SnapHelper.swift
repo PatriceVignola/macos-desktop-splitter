@@ -13,7 +13,11 @@ class SnapHelper {
         case None, FullScreen, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight
     }
     
-    static func getSnapRect(for snapDirection:SnapDirection) -> NSRect {
+    public enum OriginLocation {
+        case TopLeft, BottomLeft
+    }
+    
+    static func getSnapRect(for snapDirection: SnapDirection, withOriginAt originLocation: OriginLocation) -> NSRect {
         // TODO: Add support for multiple screens
         // TODO: Maybe return nil instead of default NSRect()
         guard let screen = NSScreen.main?.visibleFrame else { return NSRect() }
@@ -21,8 +25,12 @@ class SnapHelper {
         var snapRect = NSRect()
         
         // TODO: Check if it still works if the dock menu is vertical (left or right of the screen)
+        // TODO: Fix the height/origin when the dock is shown at the bottom of the screen
         let minX = screen.minX
-        var minY = screen.minY
+        var minY: CGFloat = 0.0
+        let height = screen.height
+        
+        NSLog("\(screen.height)")
         
         if let mainMenu = NSApplication.shared.mainMenu {
             minY += mainMenu.menuBarHeight
@@ -31,33 +39,38 @@ class SnapHelper {
         switch snapDirection {
         case .FullScreen:
             snapRect.origin = NSPoint(x: minX, y: minY)
-            snapRect.size = NSSize(width: screen.width, height: screen.height)
+            snapRect.size = NSSize(width: screen.width, height: height)
         case .Left:
             snapRect.origin = NSPoint(x: minX, y: minY)
-            snapRect.size = NSSize(width: screen.width / 2, height: screen.height)
+            snapRect.size = NSSize(width: screen.width / 2, height: height)
         case .Right:
             snapRect.origin = NSPoint(x: minX + screen.width / 2, y: minY)
-            snapRect.size = NSSize(width: screen.width / 2, height: screen.height)
+            snapRect.size = NSSize(width: screen.width / 2, height: height)
         case .Top:
             snapRect.origin = NSPoint(x: minX, y: minY)
-            snapRect.size = NSSize(width: screen.width, height: screen.height / 2)
+            snapRect.size = NSSize(width: screen.width, height: height / 2)
         case .Bottom:
-            snapRect.origin = NSPoint(x: minX, y: minY + screen.height / 2)
-            snapRect.size = NSSize(width: screen.width, height: screen.height / 2)
+            snapRect.origin = NSPoint(x: minX, y: minY + height / 2)
+            snapRect.size = NSSize(width: screen.width, height: height / 2)
         case .TopLeft:
             snapRect.origin = NSPoint(x: minX, y: minY)
-            snapRect.size = NSSize(width: screen.width / 2, height: screen.height / 2)
+            snapRect.size = NSSize(width: screen.width / 2, height: height / 2)
         case .TopRight:
             snapRect.origin = NSPoint(x: minX + screen.width / 2, y: minY)
-            snapRect.size = NSSize(width: screen.width / 2, height: screen.height / 2)
+            snapRect.size = NSSize(width: screen.width / 2, height: height / 2)
         case .BottomLeft:
-            snapRect.origin = NSPoint(x: minX, y: minY + screen.height / 2)
-            snapRect.size = NSSize(width: screen.width / 2, height: screen.height / 2)
+            snapRect.origin = NSPoint(x: minX, y: minY + height / 2)
+            snapRect.size = NSSize(width: screen.width / 2, height: height / 2)
         case .BottomRight:
-            snapRect.origin = NSPoint(x: minX + screen.width / 2, y: minY + screen.height / 2)
-            snapRect.size = NSSize(width: screen.width / 2, height: screen.height / 2)
+            snapRect.origin = NSPoint(x: minX + screen.width / 2, y: minY + height / 2)
+            snapRect.size = NSSize(width: screen.width / 2, height: height / 2)
         default:
             break
+        }
+        
+        if originLocation == .BottomLeft {
+            // Convert to a rect with its origin at the bottom-left corner
+            snapRect.origin.y = screen.height - snapRect.height - snapRect.origin.y
         }
         
         return snapRect

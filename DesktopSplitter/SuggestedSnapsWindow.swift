@@ -21,9 +21,14 @@ class SuggestedSnapsWindow: NSWindow {
         return true
     }
     
-    override func mouseEntered(with event: NSEvent) {
-        super.mouseEntered(with: event)
+    override var animationBehavior: NSWindow.AnimationBehavior {
+        get {
+            // The WindowController controls the animations of its window
+            return NSWindow.AnimationBehavior.none
+        }
         
-        NSLog("Mouse Entered in Window")
+        set {
+            super.animationBehavior = newValue
+        }
     }
 }

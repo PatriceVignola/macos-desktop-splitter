@@ -72,6 +72,7 @@
                         </collectionViewFlowLayout>
                         <color key="primaryBackgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                         <connections>
+                            <outlet property="backgroundView" destination="Ij7-3U-xjR" id="wff-Rg-yRB"/>
                             <outlet property="flowLayout" destination="hqq-dn-LiY" id="KAc-Yg-4YA"/>
                         </connections>
                     </collectionView>
@@ -80,6 +81,11 @@
                     </connections>
                 </viewController>
                 <customObject id="qRb-h4-ejn" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="Ij7-3U-xjR">
+                    <rect key="frame" x="0.0" y="0.0" width="232" height="48"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="6BD-6d-R3K"/>
+                </imageView>
             </objects>
             <point key="canvasLocation" x="152" y="648"/>
         </scene>
@@ -87,7 +93,7 @@
         <scene sceneID="cZo-5r-Oze">
             <objects>
                 <windowController storyboardIdentifier="SuggestedSnapsWindowController" id="4ue-Ub-6fB" userLabel="SuggestedSnapsWindowController" customClass="SuggestedSnapsWindowController" customModule="DesktopSplitter" customModuleProvider="target" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" oneShot="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" tabbingMode="disallowed" titleVisibility="hidden" id="hoK-Eb-wIp" userLabel="SuggestedSnapsWindow" customClass="SuggestedSnapsWindow" customModule="DesktopSplitter" customModuleProvider="target">
+                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" hasShadow="NO" oneShot="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" tabbingMode="disallowed" titleVisibility="hidden" id="hoK-Eb-wIp" userLabel="SuggestedSnapsWindow" customClass="SuggestedSnapsWindow" customModule="DesktopSplitter" customModuleProvider="target">
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="334" y="205" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1057"/>

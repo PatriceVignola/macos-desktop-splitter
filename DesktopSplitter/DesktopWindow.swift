@@ -67,12 +67,17 @@ class DesktopWindow {
         self.isMinimized = isMinimized
     }
     
-    static func getOpenedWindows() -> [DesktopWindow] {
+    static func getOpenedWindows(includeMinimized: Bool) -> [DesktopWindow] {
         var openedWindows = [DesktopWindow]()
         
         var cgProcessWindowsMap = [pid_t : [[String : AnyObject]]]()
         
-        let listOptions = CGWindowListOption.excludeDesktopElements
+        var listOptions = CGWindowListOption.excludeDesktopElements
+        
+        if !includeMinimized {
+            listOptions.formUnion(.optionOnScreenOnly)
+        }
+        
         let windows = CGWindowListCopyWindowInfo(listOptions, kCGNullWindowID) as! [[String : AnyObject]]
         
         // Since AXUIElement windows and CGWindows are not linked by a common ID, we need to link them manually
@@ -141,6 +146,41 @@ class DesktopWindow {
         }
         
         return openedWindows
+    }
+    
+    static func getDesktopScreenshot(insideFrame frame: NSRect) -> NSImage? {
+        var screenshotFrame = frame
+        
+        if let mainMenu = NSApplication.shared.mainMenu, mainMenu.menuBarHeight != 0 {
+            // The default OSX theme seems to add 1 pixel that's not included in its menuBar height. Therefore, we need
+            // to cut this line before taking a screenshot
+            if NSUserDefaultsController.shared.defaults.string(forKey: "AppleInterfaceStyle") != "Dark" {
+                screenshotFrame.origin.y += 1
+            }
+        }
+        
+        let listOptions = CGWindowListOption.optionOnScreenOnly
+        let windows = CGWindowListCopyWindowInfo(listOptions, kCGNullWindowID) as! [[String : AnyObject]]
+        
+        // The windows are ordered by Window Level (or Window Layer) in descending order
+        for index in stride(from: windows.count - 1, to: 0, by: -1) {
+            // The "Finder" window with the lowest Window Level is the window representing the icons on the folder
+            let window = windows[index]
+            guard let windowName = window[kCGWindowOwnerName as String] as? String else { continue }
+            guard windowName == "Finder" else { continue }
+            
+            let windowOptions = CGWindowListOption.optionOnScreenBelowWindow.union(.optionIncludingWindow)
+            let windowId = window[kCGWindowNumber as String] as! CGWindowID
+            let imageOptions = CGWindowImageOption.bestResolution.union(.boundsIgnoreFraming)
+            let cgScreenshot = CGWindowListCreateImage(screenshotFrame, windowOptions, windowId, imageOptions)
+            
+            if let cgScreenshot = cgScreenshot {
+                let screenshotSize = NSSize(width: cgScreenshot.width, height: cgScreenshot.height)
+                return NSImage(cgImage: cgScreenshot, size: screenshotSize)
+            }
+        }
+        
+        return nil
     }
     
     private static func isKey(axWindow: AXUIElement, from app: NSRunningApplication) -> Bool {

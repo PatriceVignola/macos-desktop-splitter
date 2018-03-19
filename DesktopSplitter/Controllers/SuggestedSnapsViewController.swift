@@ -29,7 +29,8 @@ class SuggestedSnapsViewController : NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let suggestedSnaps = DesktopWindow.getOpenedWindows().filter { !$0.isKey }
+        // TODO: Let the user turn On/Off includeMinimized from an option in the menu (default should be Off)
+        let suggestedSnaps = DesktopWindow.getOpenedWindows(includeMinimized: false).filter { !$0.isKey }
         model.add(newSuggestedSnaps: suggestedSnaps)
         
         // TODO: Test the accessibility "windowCreated" event to get a notification when new windows are opened
@@ -37,6 +38,26 @@ class SuggestedSnapsViewController : NSViewController {
         
         // TODO: Test the accessibility "uiElementDestroyed" event to get a notification when windows are closed
         // https://developer.apple.com/documentation/appkit/nsaccessibilitynotificationname/1530862-uielementdestroyed
+    }
+    
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        
+        guard let backgroundImageView = suggestedSnapsView?.backgroundView as? NSImageView else { return }
+        
+        let screenshotFrame = SnapHelper.getSnapRect(for: model.suggestedSnapDirection, withOriginAt: .TopLeft)
+        
+        if let desktopScreenshot = DesktopWindow.getDesktopScreenshot(insideFrame: screenshotFrame) {
+            desktopScreenshot.lockFocus()
+            
+            let overlay = NSRect(origin: NSZeroPoint, size: screenshotFrame.size)
+            NSColor(calibratedWhite: 0.0, alpha: 0.7).setFill()
+            overlay.fill(using: .multiply)
+            
+            desktopScreenshot.unlockFocus()
+            
+            backgroundImageView.image = desktopScreenshot
+        }
     }
     
     override func cancelOperation(_ sender: Any?) {
@@ -80,7 +101,7 @@ extension SuggestedSnapsViewController : SuggestedSnapsViewDelegate {
             let suggestedSnap = model.getSuggestedSnap(at: indexPath[1])
             
             // TODO: Add support for multiple screens
-            let snapRect = SnapHelper.getSnapRect(for: model.suggestedSnapDirection)
+            let snapRect = SnapHelper.getSnapRect(for: model.suggestedSnapDirection, withOriginAt: .TopLeft)
             suggestedSnap.set(frame: snapRect)
             suggestedSnap.bringToFront()
             
