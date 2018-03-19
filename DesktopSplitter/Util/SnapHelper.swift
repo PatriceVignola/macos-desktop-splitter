@@ -30,8 +30,6 @@ class SnapHelper {
         var minY: CGFloat = 0.0
         let height = screen.height
         
-        NSLog("\(screen.height)")
-        
         if let mainMenu = NSApplication.shared.mainMenu {
             minY += mainMenu.menuBarHeight
         }
